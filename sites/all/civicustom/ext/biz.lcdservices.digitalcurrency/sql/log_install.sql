@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_digitalcurrency_log` (
   `trxn_hash` varchar(255) NOT NULL,
   `value_input` decimal(20,8) NOT NULL,
   `value_output` decimal(20,8) NOT NULL,
-  `timestamp` timestamp DEFAULT NULL,
+  `timestamp` timestamp,
   `is_processed` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `trxn_hash` (`trxn_hash`),

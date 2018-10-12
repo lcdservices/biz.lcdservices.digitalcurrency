@@ -3,6 +3,7 @@
 class CRM_DigitalCurrency_BAO_Processor_Bitcoin {
 
   public $_url = 'https://blockchain.info/rawaddr/';
+  public $_urlExchange = 'https://blockchain.info/ticker';
   public $_currencySymbol = 'BTC';
 
   /**
@@ -28,12 +29,16 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin {
     $content = json_decode(file_get_contents($urlDC));
     //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
+    //get exchange rates
+    $exchange = $this->getExchangeRate();
+
     $trxns = array();
     foreach ($content->txs as $trxn) {
       $values = array(
         'addr_source' => $trxn->inputs[0]->prev_out->addr,
         'trxn_hash' => $trxn->hash,
-        'value_input' => $trxn->inputs[0]->prev_out->value * 0.00000001,
+        'value_input' => $trxn->inputs[0]->prev_out->value,
+        'value_input_exch' => $trxn->inputs[0]->prev_out->value * .000001 * $exchange,
         'timestamp' => $trxn->time,
       );
 
@@ -41,11 +46,27 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin {
       foreach ($trxn->out as $out) {
         $totalOut += $out->value;
       }
-      $values['value_output'] = $totalOut * 0.00000001;
+      $values['value_output'] = $totalOut;
+      $values['value_output_exch'] = $totalOut * .000001 * $exchange;
 
       $trxns[] = $values;
     }
 
     return $trxns;
+  }
+
+  /**
+   * @return null
+   *
+   * get last exchange rate
+   *
+   * TODO: this supports passing multiple countries but we don't handle that upstream currently
+   * TODO: we don't do any checking to determine if the country exists
+   */
+  function getExchangeRate($country = 'USD') {
+    $content = json_decode(file_get_contents($this->_urlExchange));
+    //Civi::log()->debug('getExchangeRate', array('content' => $content));
+
+    return $content->$country->last;
   }
 }

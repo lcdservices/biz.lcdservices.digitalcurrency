@@ -46,20 +46,20 @@ class CRM_DigitalCurrency_BAO_Import {
         continue;
       }
 
-      $fee = number_format($trxn['value_input'] - $trxn['value_output'], 8);
+      $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $content[] = array(
         'type' => 'donation',
         'source' => $trxn['addr_source'],
         'funds_transfer_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
         'completion_status' => 'Completed',
-        'gross' => $trxn['value_output'],
+        'gross' => $trxn['value_output_exch'],
         'fees' => $fee,
-        'net' => $trxn['value_input'],
-        'currency' => self::mapCurrency($provider),
+        'net' => $trxn['value_input_exch'],
+        'currency' => 'USD',
         'refunded' => NULL,
         'processor_txn_id' => $provider.'-'.$trxn['trxn_hash'],
         'payment_processor' => NULL,
-        'payment_method_handle' => 'Digital Currency',
+        'payment_method_handle' => 'digital_currency_'.self::mapCurrency($provider),
         'subscription_id' => NULL,
         'last4' => NULL,
         'brand' => NULL,
@@ -99,19 +99,19 @@ class CRM_DigitalCurrency_BAO_Import {
         'return' => 'id',
       ));
 
-      $fee = number_format($trxn['value_input'] - $trxn['value_output'], 8);
+      $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $params = array(
         'contact_id' => $dcId,
         'financial_type_id' => 'Donation',
         'source' => $trxn['addr_source'],
         'receive_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
         'contribution_status_id' => 'Completed',
-        'total_amount' => $trxn['value_output'],
+        'total_amount' => $trxn['value_output_exch'],
         'fee_amount' => $fee,
-        'net_amount' => $trxn['value_input'],
-        'currency' => self::mapCurrency($provider),
+        'net_amount' => $trxn['value_input_exch'],
+        'currency' => 'USD',
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
-        'payment_instrument_id' => 'digital_currency',
+        'payment_instrument_name' => 'digital_currency_'.self::mapCurrency($provider),
       );
       //Civi::log()->debug('processContrib', array('$params' => $params));
 

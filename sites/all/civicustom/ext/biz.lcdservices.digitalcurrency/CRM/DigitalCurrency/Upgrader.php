@@ -13,24 +13,68 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
    * Example: Run an external SQL script when the module is installed.
    */
   public function install() {
-    $this->executeSqlFile('sql/currency_install.sql');
+    //$this->executeSqlFile('sql/currency_install.sql');
     $this->executeSqlFile('sql/log_install.sql');
 
-    try {
-      $opt = civicrm_api3('OptionValue', 'get', array(
-        'option_group_id' => 'payment_instrument',
-        'name' => 'digital_currency',
-      ));
+    //configure payment methods
+    $pms = array(
+      'BTC' => 'Digital Currency: Bitcoin',
+      'BCH' => 'Digital Currency: Bitcoin Cash',
+      'ETH' => 'Digital Currency: Ethereum',
+      'ZEC' => 'Digital Currency: Zcash',
+    );
 
-      if (empty($opt['count'])) {
-        civicrm_api3('OptionValue', 'create', array(
+    foreach ($pms as $dc => $label) {
+      try {
+        $opt = civicrm_api3('OptionValue', 'get', [
           'option_group_id' => 'payment_instrument',
-          'label' => 'Digital Currency',
-          'name' => 'digital_currency',
-        ));
+          'name' => "digital_currency_{$dc}",
+        ]);
+
+        if (empty($opt['count'])) {
+          civicrm_api3('OptionValue', 'create', [
+            'option_group_id' => 'payment_instrument',
+            'label' => $label,
+            'name' => "digital_currency_{$dc}",
+          ]);
+        }
+      } catch (CRM_API3_Exception $e) {
       }
     }
-    catch (CRM_API3_Exception $e) {}
+
+    //convert currency fields to 8 digits
+    $currencyFields = array(
+      'civicrm_contribution' => array(
+        'non_deductible_amount',
+        'total_amount',
+        'fee_amount',
+        'net_amount',
+        'tax_amount',
+      ),
+      'civicrm_line_item' => array(
+        'unit_price',
+        'line_total',
+        'non_deductible_amount',
+        'tax_amount',
+      ),
+      'civicrm_financial_item' => array(
+        'amount',
+      ),
+      'civicrm_financial_trxn' => array(
+        'total_amount',
+        'fee_amount',
+        'net_amount',
+      ),
+    );
+
+    //we are storing as USD, so don't convert...
+    /*foreach ($currencyFields as $table => $fields) {
+      foreach ($fields as $field) {
+        CRM_Core_DAO::executeQuery("
+          ALTER TABLE {$table} MODIFY {$field} DECIMAL(20,2);
+        ");
+      }
+    }*/
   }
 
   /**
