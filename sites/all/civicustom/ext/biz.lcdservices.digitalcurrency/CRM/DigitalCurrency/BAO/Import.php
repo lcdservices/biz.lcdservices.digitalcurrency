@@ -95,7 +95,7 @@ class CRM_DigitalCurrency_BAO_Import {
 
       //get Digital Currency contact
       $dcId = civicrm_api3('Contact', 'getvalue', array(
-        'display_name' => $provider,
+        'organization_name' => $provider,
         'return' => 'id',
       ));
 
@@ -111,7 +111,7 @@ class CRM_DigitalCurrency_BAO_Import {
         'net_amount' => $trxn['value_input_exch'],
         'currency' => 'USD',
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
-        'payment_instrument_name' => 'digital_currency_'.self::mapCurrency($provider),
+        'payment_instrument_id' => 'digital_currency_'.self::mapCurrency($provider),
       );
       //Civi::log()->debug('processContrib', array('$params' => $params));
 
