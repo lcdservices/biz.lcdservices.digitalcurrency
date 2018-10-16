@@ -99,6 +99,14 @@ class CRM_DigitalCurrency_BAO_Import {
         'return' => 'id',
       ));
 
+      //setup custom fields
+      $custom = array(
+        'source_address' => CRM_Core_BAO_CustomField::getCustomFieldID('source_address', 'digital_currency_details'),
+        'value_in' => CRM_Core_BAO_CustomField::getCustomFieldID('value_in', 'digital_currency_details'),
+        'value_out' => CRM_Core_BAO_CustomField::getCustomFieldID('value_out', 'digital_currency_details'),
+        'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
+      );
+
       $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $params = array(
         'contact_id' => $dcId,
@@ -112,6 +120,10 @@ class CRM_DigitalCurrency_BAO_Import {
         'currency' => 'USD',
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
         'payment_instrument_id' => 'digital_currency_'.self::mapCurrency($provider),
+        "custom_{$custom['source_address']}" => $trxn['addr_source'],
+        "custom_{$custom['value_in']}" => number_format($trxn['value_input'], 0, '.', ''),
+        "custom_{$custom['value_out']}" => number_format($trxn['value_output'], 0, '.', ''),
+        "custom_{$custom['fee']}" => number_format($trxn['value_input'] - $trxn['value_output'], 0, '.', ''),
       );
       //Civi::log()->debug('processContrib', array('$params' => $params));
 

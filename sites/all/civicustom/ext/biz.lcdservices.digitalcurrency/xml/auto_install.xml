@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<CustomData>
+  <CustomGroups>
+    <CustomGroup>
+      <name>digital_currency_details</name>
+      <title>Digital Currency Details</title>
+      <extends>Contribution</extends>
+      <style>Inline</style>
+      <collapse_display>0</collapse_display>
+      <help_pre></help_pre>
+      <help_post></help_post>
+      <weight>2</weight>
+      <is_active>1</is_active>
+      <table_name>civicrm_value_digital_currency</table_name>
+      <is_multiple>0</is_multiple>
+      <collapse_adv_display>1</collapse_adv_display>
+      <is_reserved>0</is_reserved>
+      <is_public>0</is_public>
+    </CustomGroup>
+  </CustomGroups>
+  <CustomFields>
+    <CustomField>
+      <name>source_address</name>
+      <label>Source Address</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>1</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>source_address</column_name>
+      <in_selector>0</in_selector>
+      <custom_group_name>digital_currency_details</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <name>value_in</name>
+      <label>Value In</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>2</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>value_in</column_name>
+      <in_selector>0</in_selector>
+      <custom_group_name>digital_currency_details</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <name>value_out</name>
+      <label>Value Out</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>3</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>value_out</column_name>
+      <in_selector>0</in_selector>
+      <custom_group_name>digital_currency_details</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <name>fee</name>
+      <label>Fee</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>0</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>4</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>fee</column_name>
+      <in_selector>0</in_selector>
+      <custom_group_name>digital_currency_details</custom_group_name>
+    </CustomField>
+  </CustomFields>
+</CustomData>
