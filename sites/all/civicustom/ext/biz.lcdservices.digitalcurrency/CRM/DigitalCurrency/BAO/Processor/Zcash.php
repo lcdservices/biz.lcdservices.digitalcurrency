@@ -49,6 +49,14 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
         'timestamp' => $trxn->timeStamp,
       );
 
+      $totalOut = $totalOutCvt = 0;
+      foreach ($trxn->vout as $out) {
+        $totalOut += $out->valueZat;
+        $totalOutCvt += $out->value;
+      }
+      $values['value_output'] = $totalOut;
+      $values['value_output_exch'] = $totalOutCvt * $exchange;
+
       $trxns[] = $values;
     }
 
