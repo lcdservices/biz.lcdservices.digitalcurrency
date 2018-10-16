@@ -27,6 +27,9 @@ class CRM_DigitalCurrency_BAO_Import {
         $trxns = $class->getTransactions($providerParams);
         //Civi::log()->debug('process', array('trxns' => $trxns));
 
+        //clean array
+        self::cleanTrxns($trxns);
+
         $methodFunc = 'process'.$method;
         self::$methodFunc($trxns, $provider);
       }
@@ -166,6 +169,8 @@ class CRM_DigitalCurrency_BAO_Import {
    * second one (trxn_hash is unique key)
    */
   static function logTrxn($trxn, $provider) {
+    //Civi::log()->debug('logTrxn', array('trxn' => $trxn, 'provider' => $provider));
+
     CRM_Core_DAO::executeQuery("
       REPLACE INTO civicrm_digitalcurrency_log
       (provider, addr_source, trxn_hash, value_input, value_output, timestamp, is_processed)
@@ -192,5 +197,19 @@ class CRM_DigitalCurrency_BAO_Import {
     ));
 
     return $processed;
+  }
+
+  static function cleanTrxns(&$trxns) {
+    foreach ($trxns as &$trxn) {
+      if (empty($trxn['addr_source'])) {
+        $trxn['addr_source'] = '(source address unknown)';
+      }
+
+      foreach ($trxn as &$val) {
+        if (empty($val)) {
+          $val = 0;
+        }
+      }
+    }
   }
 }
