@@ -82,8 +82,8 @@ class CRM_DigitalCurrency_BAO_Import {
     $json = json_encode($content);
 
     //write to file
-    $folder = '/home/archive/dcfiles/';//TODO make configurable
-    $fileName = $folder.$provider.'_'.date('YmdHis').'.txt';
+    $folder = Civi::settings()->get('dc_export_path');
+    $fileName = $folder.$provider.'_'.date('YmdHis').'.json';
     file_put_contents($fileName, $json);
   }
 
