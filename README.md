@@ -2,7 +2,7 @@
 
 ![Screenshot](/images/screenshot.png)
 
-(*FIXME: In one or two paragraphs, describe what the extension does and why one would download it. *)
+This extension retrieves digital currency records and imports them into CiviCRM or generates a json export file.
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
@@ -37,9 +37,9 @@ cv en digitalcurrency
 
 ## Usage
 
-After installing the extension you will need to configure it for your use case.
+After installing the extension you will need to configure it for your use case. First set the path for use with data export. This can currently be done through the API web explorer (Support > Developer > API Explorer). Select Entity = Setting, Action = create, and in the field selection search for "Digital Currency Export Path." The value should be the full server path name.
 
-Begin by enabling the desired currencies at Administer > Localization > Languages, Currency, Locations. This extension installs four available currencies:
+Enabling the desired currencies at Administer > Localization > Languages, Currency, Locations. This extension installs four available currencies:
 
 * Bitcoin (BTC)
 * Bitcoin Cash (BCH)

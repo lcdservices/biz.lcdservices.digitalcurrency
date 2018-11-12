@@ -26,10 +26,16 @@ function civicrm_api3_digital_currency_Import($params) {
   //Civi::log()->debug('civicrm_api3_digital_currency_Import', array('params' => $params));
 
   try {
-    CRM_DigitalCurrency_BAO_Import::process($params);
-    //return civicrm_api3_create_success($returnValues, $params, 'NewEntity', 'NewAction');
+    $result = CRM_DigitalCurrency_BAO_Import::process($params);
+
+    if ($result) {
+      return civicrm_api3_create_success($result, $params, 'DigitalCurrency', 'process');
+    }
+    else {
+      throw new API_Exception('Unable to process transactions', 901);
+    }
   }
   catch (CRM_API3_Exception $e) {
-    throw new API_Exception('Unable to process transactions', 901);
+    throw new API_Exception('Unable to process transactions', 902);
   }
 }

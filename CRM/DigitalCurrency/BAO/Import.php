@@ -13,6 +13,7 @@ class CRM_DigitalCurrency_BAO_Import {
   static function process($params) {
     $provider = CRM_Utils_Array::value('provider', $params, NULL);
     $method = CRM_Utils_Array::value('method', $params, 'File');
+    $result = FALSE;
 
     //setup available params
     $providerParams = array(
@@ -31,12 +32,14 @@ class CRM_DigitalCurrency_BAO_Import {
         self::cleanTrxns($trxns);
 
         $methodFunc = 'process'.$method;
-        self::$methodFunc($trxns, $provider);
+        $result = self::$methodFunc($trxns, $provider);
       }
     }
     else {
       //TODO cycle through all configured providers
     }
+
+    return $result;
   }
 
   static function processFile($trxns, $provider) {
@@ -83,8 +86,18 @@ class CRM_DigitalCurrency_BAO_Import {
 
     //write to file
     $folder = Civi::settings()->get('dc_export_path');
+
+    //check if folder exists; if not, attempt to create it
+    if (!file_exists($folder)) {
+      if (!mkdir($folder)) {
+        return FALSE;
+      }
+    }
+
     $fileName = $folder.$provider.'_'.date('YmdHis').'.json';
     file_put_contents($fileName, $json);
+
+    return TRUE;
   }
 
   static function processContrib($trxns, $provider) {
