@@ -54,6 +54,7 @@ class CRM_DigitalCurrency_BAO_Import {
 
       $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $content[] = array(
+        'organization' => $provider,
         'type' => 'donation',
         'source' => $trxn['addr_source'],
         'funds_transfer_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
