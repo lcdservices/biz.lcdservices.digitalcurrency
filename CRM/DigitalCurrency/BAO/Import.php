@@ -94,6 +94,9 @@ class CRM_DigitalCurrency_BAO_Import {
       }
     }
 
+    //ensure trailing slash
+    $folder = str_replace('//', '/', $folder.'/');
+
     $fileName = $folder.$provider.'_'.date('YmdHis').'.json';
     file_put_contents($fileName, $json);
 
