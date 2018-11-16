@@ -52,6 +52,14 @@ class CRM_DigitalCurrency_BAO_Import {
         continue;
       }
 
+      //setup custom fields
+      $custom = array(
+        'source_address' => CRM_Core_BAO_CustomField::getCustomFieldID('source_address', 'digital_currency_details'),
+        'value_in' => CRM_Core_BAO_CustomField::getCustomFieldID('value_in', 'digital_currency_details'),
+        'value_out' => CRM_Core_BAO_CustomField::getCustomFieldID('value_out', 'digital_currency_details'),
+        'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
+      );
+
       $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $content[] = array(
         'organization' => $provider,
@@ -77,6 +85,10 @@ class CRM_DigitalCurrency_BAO_Import {
         'source_url_context' => NULL,
         'contribution_page_id' => NULL,
         'note' => NULL,
+        "custom_{$custom['source_address']}" => $trxn['addr_source'],
+        "custom_{$custom['value_in']}" => number_format($trxn['value_input'], 0, '.', ''),
+        "custom_{$custom['value_out']}" => number_format($trxn['value_output'], 0, '.', ''),
+        "custom_{$custom['fee']}" => number_format($trxn['value_input'] - $trxn['value_output'], 0, '.', ''),
       );
 
       self::logTrxn($trxn, $provider);
