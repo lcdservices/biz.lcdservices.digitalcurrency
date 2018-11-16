@@ -188,19 +188,21 @@ class CRM_DigitalCurrency_BAO_Import {
   static function logTrxn($trxn, $provider) {
     //Civi::log()->debug('logTrxn', array('trxn' => $trxn, 'provider' => $provider));
 
-    CRM_Core_DAO::executeQuery("
-      REPLACE INTO civicrm_digitalcurrency_log
-      (provider, addr_source, trxn_hash, value_input, value_output, timestamp, is_processed)
-      VALUES
-      (%1, %2, %3, %4, %5, %6, 1)
-    ", array(
-      1 => array($provider, 'String'),
-      2 => array($trxn['addr_source'], 'String'),
-      3 => array($trxn['trxn_hash'], 'String'),
-      4 => array($trxn['value_input'], 'String'),
-      5 => array($trxn['value_output'], 'String'),
-      6 => array(date('Y-m-d H:i:s', $trxn['timestamp']), 'String'),
-    ));
+    if (Civi::settings()->get('dc_logging')) {
+      CRM_Core_DAO::executeQuery("
+        REPLACE INTO civicrm_digitalcurrency_log
+        (provider, addr_source, trxn_hash, value_input, value_output, timestamp, is_processed)
+        VALUES
+        (%1, %2, %3, %4, %5, %6, 1)
+      ", [
+        1 => [$provider, 'String'],
+        2 => [$trxn['addr_source'], 'String'],
+        3 => [$trxn['trxn_hash'], 'String'],
+        4 => [$trxn['value_input'], 'String'],
+        5 => [$trxn['value_output'], 'String'],
+        6 => [date('Y-m-d H:i:s', $trxn['timestamp']), 'String'],
+      ]);
+    }
   }
 
   static function isProcessed($trxn) {
