@@ -12,7 +12,7 @@ class CRM_DigitalCurrency_BAO_Import {
    */
   static function process($params) {
     $provider = CRM_Utils_Array::value('provider', $params, NULL);
-    $method = CRM_Utils_Array::value('method', $params, 'File');
+    $method = CRM_Utils_Array::value('method', $params, 'Contrib');
     $result = FALSE;
 
     //setup available params
@@ -64,7 +64,7 @@ class CRM_DigitalCurrency_BAO_Import {
       $content[] = array(
         'organization' => $provider,
         'type' => 'donation',
-        'source' => $trxn['addr_source'],
+        'source' => "Digital Currency Import",
         'funds_transfer_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
         'completion_status' => 'Completed',
         'gross' => $trxn['value_output_exch'],
@@ -119,6 +119,7 @@ class CRM_DigitalCurrency_BAO_Import {
   static function processContrib($trxns, $provider) {
     //Civi::log()->debug('processFile', array('trxns' => $trxns));
 
+    $i = 0;
     foreach ($trxns as $trxn) {
       //check log to ensure it hasn't been imported already
       if (self::isProcessed($trxn)) {
@@ -161,6 +162,7 @@ class CRM_DigitalCurrency_BAO_Import {
 
       try {
         civicrm_api3('Contribution', 'create', $params);
+        $i ++;
       }
       catch (CRM_API3_Exception $e) {
         Civi::log()->debug('processContrib', array('$e' => $e));
@@ -168,6 +170,8 @@ class CRM_DigitalCurrency_BAO_Import {
 
       self::logTrxn($trxn, $provider);
     }
+
+    return $i;
   }
 
   /**
