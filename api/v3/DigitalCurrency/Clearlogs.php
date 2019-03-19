@@ -26,7 +26,9 @@ function civicrm_api3_digital_currency_Clearlogs($params) {
   //Civi::log()->debug('civicrm_api3_digital_currency_Import', array('params' => $params));
 
   try {
-    $result = CRM_DigitalCurrency_BAO_Import::logClear(CRM_Utils_Array::value('provider', $params));
+    if (CRM_Utils_Array::value('confirm', $params)) {
+      $result = CRM_DigitalCurrency_BAO_Import::logClear(CRM_Utils_Array::value('provider', $params));
+    }
 
     if ($result) {
       return civicrm_api3_create_success($result, $params, 'DigitalCurrency', 'Clearlogs');
