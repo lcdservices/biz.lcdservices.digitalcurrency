@@ -221,6 +221,17 @@ class CRM_DigitalCurrency_BAO_Import {
     }
   }
 
+  static function logClear($provider = NULL) {
+    $providerSql = (!empty($provider)) ? "WHERE provider = %1" : '';
+    CRM_Core_DAO::executeQuery("
+      TRUNCATE civicrm_digitalcurrency_log {$providerSql}
+    ", [
+      1 => [$provider, 'String'],
+    ]);
+
+    return TRUE;
+  }
+
   static function isProcessed($trxn) {
     $processed = CRM_Core_DAO::singleValueQuery("
       SELECT id
