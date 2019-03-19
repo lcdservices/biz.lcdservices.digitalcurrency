@@ -222,7 +222,14 @@ class CRM_DigitalCurrency_BAO_Import {
   }
 
   static function logClear($provider = NULL) {
-    $providerSql = (!empty($provider)) ? "WHERE provider = %1" : '';
+    if (!empty($provider)) {
+      $providerSql = "WHERE provider = %1";
+    }
+    else {
+      $providerSql = '';
+      $provider = 'null';//to avoide error in query params
+    }
+
     CRM_Core_DAO::executeQuery("
       TRUNCATE civicrm_digitalcurrency_log {$providerSql}
     ", [
