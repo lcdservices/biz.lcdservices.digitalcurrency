@@ -144,7 +144,7 @@ class CRM_DigitalCurrency_BAO_Import {
       $params = array(
         'contact_id' => $dcId,
         'financial_type_id' => 'Donation',
-        'source' => $trxn['addr_source'],
+        'source' => 'Digital Currency Import',
         'receive_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
         'contribution_status_id' => 'Completed',
         'total_amount' => $trxn['value_output_exch'],
