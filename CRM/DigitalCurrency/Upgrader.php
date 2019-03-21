@@ -17,11 +17,13 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
     $this->executeSqlFile('sql/log_install.sql');
 
     //configure payment methods
+    //TODO extract from provider classes
     $pms = array(
       'BTC' => 'Digital Currency: Bitcoin',
       'BCH' => 'Digital Currency: Bitcoin Cash',
       'ETH' => 'Digital Currency: Ethereum',
       'ZEC' => 'Digital Currency: Zcash',
+      'XRP' => 'Digital Currency: Ripple',
     );
 
     foreach ($pms as $dc => $label) {
@@ -41,6 +43,8 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
       } catch (CRM_API3_Exception $e) {
       }
     }
+
+    //TODO we should ensure DC org contact records exist and create if they don't
 
     //convert currency fields to 8 digits
     $currencyFields = array(
