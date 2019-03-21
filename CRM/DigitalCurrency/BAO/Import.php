@@ -145,7 +145,7 @@ class CRM_DigitalCurrency_BAO_Import {
         'contact_id' => $dcId,
         'financial_type_id' => 'Donation',
         'source' => 'Digital Currency Import',
-        'receive_date' => date('Y-m-d H:i:s', $trxn['timestamp']),
+        'receive_date' => self::formatTimestamp($trxn['timestamp']),
         'contribution_status_id' => 'Completed',
         'total_amount' => $trxn['value_output_exch'],
         'fee_amount' => $fee,
@@ -264,5 +264,14 @@ class CRM_DigitalCurrency_BAO_Import {
         }
       }
     }
+  }
+
+  static function formatTimestamp($timestamp) {
+    $mysqlDate = date('Y-m-d H:i:s', $timestamp);
+    $dateTime = new DateTime ($mysqlDate);
+    $dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
+
+    //Civi::log()->debug('', ['dateTime' => $dateTime]);
+    return $dateTime->date;
   }
 }
