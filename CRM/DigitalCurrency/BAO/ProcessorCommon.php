@@ -20,7 +20,7 @@ class CRM_DigitalCurrency_BAO_ProcessorCommon {
     $urlParams = http_build_query(array('fsym' => $provider, 'tsyms' => $currency));
 
     $content = json_decode(file_get_contents($this->_urlExchange.'?'.$urlParams));
-    //Civi::log()->debug('getExchangeRate', array('content' => $content));
+    //Civi::log()->debug('getExchangeRate', ['$urlParams' => $urlParams, 'content' => $content]);
 
     return $content->$currency;
   }

@@ -4,7 +4,6 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
   extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://data.ripple.com/v2/accounts/';
-  public $_urlExchange = 'https://blockchain.info/ticker';
   public $_currencySymbol = 'XRP';
 
   /**
@@ -31,7 +30,7 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
     //Civi::log()->debug('getTransactions', array('$url' => $url, 'content' => $content));
 
     //get exchange rates
-    $exchange = $this->getExchangeRate();
+    $exchange = $this->getExchangeRate('USD', $this->_currencySymbol);
 
     $trxns = [];
     foreach ($content->payments as $trxn) {
@@ -44,6 +43,7 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
         'value_output_exch' => $trxn->delivered_amount * $exchange,
         'timestamp' => strtotime($trxn->executed_time),
         'fee' => $trxn->transaction_cost,
+        'fee_exch' => $trxn->transaction_cost * $exchange,
       ];
 
       $trxns[] = $values;

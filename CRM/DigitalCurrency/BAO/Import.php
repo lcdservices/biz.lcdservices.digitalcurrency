@@ -117,7 +117,7 @@ class CRM_DigitalCurrency_BAO_Import {
   }
 
   static function processContrib($trxns, $provider) {
-    Civi::log()->debug('processContrib', array('trxns' => $trxns));
+    //Civi::log()->debug('processContrib', array('trxns' => $trxns));
 
     $dcId = self::getProviderContact($provider);
 
@@ -136,15 +136,20 @@ class CRM_DigitalCurrency_BAO_Import {
         'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
       );
 
-      $fee = number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
+      $feeExch = (!empty($trxn['fee_exch'])) ? $trxn['fee_exch'] :
+        number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
+      $fee = (!empty($trxn['fee'])) ? $trxn['fee'] :
+        number_format($trxn['value_input'] - $trxn['value_output'], 2);
+      $amount = (!empty($trxn['amount_exch'])) ? $trxn['amount_exch'] : $trxn['value_output_exch'];
+
       $params = array(
         'contact_id' => $dcId,
         'financial_type_id' => 'Donation',
         'source' => 'Digital Currency Import',
         'receive_date' => self::formatTimestamp($trxn['timestamp']),
         'contribution_status_id' => 'Completed',
-        'total_amount' => $trxn['value_output_exch'],
-        'fee_amount' => $fee,
+        'total_amount' => $amount,
+        'fee_amount' => $feeExch,
         'net_amount' => $trxn['value_input_exch'],
         'currency' => 'USD',
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
@@ -152,7 +157,7 @@ class CRM_DigitalCurrency_BAO_Import {
         "custom_{$custom['source_address']}" => $trxn['addr_source'],
         "custom_{$custom['value_in']}" => number_format($trxn['value_input'], 0, '.', ''),
         "custom_{$custom['value_out']}" => number_format($trxn['value_output'], 0, '.', ''),
-        "custom_{$custom['fee']}" => number_format($trxn['value_input'] - $trxn['value_output'], 0, '.', ''),
+        "custom_{$custom['fee']}" => $fee,
       );
       //Civi::log()->debug('processContrib', array('$params' => $params));
 
@@ -269,7 +274,7 @@ class CRM_DigitalCurrency_BAO_Import {
     $dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
 
     //Civi::log()->debug('', ['dateTime' => $dateTime]);
-    return $dateTime->date;
+    return $dateTime->format('Y-m-d H:i:s');
   }
 
   static function getProviderContact($provider) {
