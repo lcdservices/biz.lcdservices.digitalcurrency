@@ -139,7 +139,7 @@ class CRM_DigitalCurrency_BAO_Import {
       $feeExch = (!empty($trxn['fee_exch'])) ? $trxn['fee_exch'] :
         number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
       $fee = (!empty($trxn['fee'])) ? $trxn['fee'] :
-        number_format($trxn['value_input'] - $trxn['value_output'], 2);
+        $trxn['value_input'] - $trxn['value_output'];
       $amount = (!empty($trxn['amount_exch'])) ? $trxn['amount_exch'] : $trxn['value_output_exch'];
 
       $params = array(
