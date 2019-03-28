@@ -150,7 +150,7 @@ class CRM_DigitalCurrency_BAO_Import {
         'contribution_status_id' => 'Completed',
         'total_amount' => $amount,
         'fee_amount' => $feeExch,
-        'net_amount' => $trxn['value_input_exch'],
+        'net_amount' => $amount - $feeExch,
         'currency' => 'USD',
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
         'payment_instrument_id' => 'digital_currency_'.self::mapCurrency($provider),
