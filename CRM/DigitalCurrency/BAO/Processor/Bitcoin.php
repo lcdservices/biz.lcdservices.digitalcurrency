@@ -38,7 +38,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
       $values = array(
         'addr_source' => $trxn->inputs[0]->prev_out->addr,
         'trxn_hash' => $trxn->hash,
-        'value_input' => $trxn->inputs[0]->prev_out->value,
+        'value_input' => $trxn->inputs[0]->prev_out->value * .00000001,
         'value_input_exch' => $trxn->inputs[0]->prev_out->value * .00000001 * $exchange,
         'timestamp' => $trxn->time,
       );
@@ -52,7 +52,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
           $values['amount_exch'] = $out->value * .00000001 * $exchange;
         }
       }
-      $values['value_output'] = $totalOut;
+      $values['value_output'] = $totalOut* .00000001;
       $values['value_output_exch'] = $totalOut * .00000001 * $exchange;
 
       $trxns[] = $values;
