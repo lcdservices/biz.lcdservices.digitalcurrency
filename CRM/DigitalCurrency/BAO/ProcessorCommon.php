@@ -1,6 +1,6 @@
 <?php
 
-class CRM_DigitalCurrency_BAO_Processor_ProviderCommon {
+class CRM_DigitalCurrency_BAO_ProcessorCommon {
   public $_urlExchange = 'https://min-api.cryptocompare.com/data/price';
 
   /**
@@ -23,5 +23,19 @@ class CRM_DigitalCurrency_BAO_Processor_ProviderCommon {
     //Civi::log()->debug('getExchangeRate', array('content' => $content));
 
     return $content->$currency;
+  }
+
+  static function getProviders() {
+    $path = CRM_Core_Resources::singleton()->getPath(CRM_DigitalCurrency_ExtensionUtil::LONG_NAME);
+    $files = array_diff(scandir($path.'/CRM/DigitalCurrency/BAO/Processor'), ['..', '.']);
+    //Civi::log()->debug('getProviderClasses', ['$files' => $files]);
+
+    $providers = [];
+    foreach ($files as $file) {
+      $provider = str_replace('.php', '', $file);
+      $providers[$provider] = $provider;
+    }
+
+    return $providers;
   }
 }

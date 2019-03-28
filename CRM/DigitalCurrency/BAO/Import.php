@@ -117,7 +117,9 @@ class CRM_DigitalCurrency_BAO_Import {
   }
 
   static function processContrib($trxns, $provider) {
-    //Civi::log()->debug('processFile', array('trxns' => $trxns));
+    Civi::log()->debug('processContrib', array('trxns' => $trxns));
+
+    $dcId = self::getProviderContact($provider);
 
     $i = 0;
     foreach ($trxns as $trxn) {
@@ -125,12 +127,6 @@ class CRM_DigitalCurrency_BAO_Import {
       if (self::isProcessed($trxn)) {
         continue;
       }
-
-      //get Digital Currency contact
-      $dcId = civicrm_api3('Contact', 'getvalue', array(
-        'organization_name' => $provider,
-        'return' => 'id',
-      ));
 
       //setup custom fields
       $custom = array(
@@ -187,6 +183,7 @@ class CRM_DigitalCurrency_BAO_Import {
       'BitcoinCash' => 'BCH',
       'Etherium' => 'ETH',
       'Zcash' => 'ZEC',
+      'Ripple' => 'XRP'
     );
 
     return CRM_Utils_Array::value($provider, $map);
@@ -273,5 +270,41 @@ class CRM_DigitalCurrency_BAO_Import {
 
     //Civi::log()->debug('', ['dateTime' => $dateTime]);
     return $dateTime->date;
+  }
+
+  static function getProviderContact($provider) {
+    try {
+      //get Digital Currency contact
+      $dcContact = civicrm_api3('Contact', 'get', [
+        'organization_name' => $provider,
+        'contact_type' => 'Organization',
+        'return' => 'id',
+        'sequential' => 1,
+      ]);
+      //Civi::log()->debug('getProviderContact', ['$dcContact' => $dcContact]);
+
+      if (!empty($dcContact['values'][0]['id'])) {
+        $dcId = $dcContact['values'][0]['id'];
+      }
+      else {
+        $contact = civicrm_api3('contact', 'create', [
+          'contact_type' => 'Organization',
+          'organization_name' => $provider,
+        ]);
+        //Civi::log()->debug('getProviderContact', ['$contact' => $contact]);
+
+        $dcId = $contact['id'];
+      }
+    }
+    catch (CiviCRM_API3_Exception $e) {
+      Civi::log()->debug('getProviderContact', ['$e' => $e]);
+    }
+
+    //Civi::log()->debug('getProviderContact', ['$dcId' => $dcId]);
+    if (empty($dcId)) {
+      throw new API_Exception('Unable to retrieve or create provider contact record.', 905);
+    }
+
+    return $dcId;
   }
 }

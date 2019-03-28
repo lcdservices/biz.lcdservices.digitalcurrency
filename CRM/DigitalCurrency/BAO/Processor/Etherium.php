@@ -1,7 +1,7 @@
 <?php
 
 class CRM_DigitalCurrency_BAO_Processor_Etherium
-  extends CRM_DigitalCurrency_BAO_Processor_ProviderCommon {
+  extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'http://api.etherscan.io/api';
   public $_currencySymbol = 'ETH';

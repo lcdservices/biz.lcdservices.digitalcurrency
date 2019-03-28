@@ -10,7 +10,13 @@ use CRM_DigitalCurrency_ExtensionUtil as E;
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
 function _civicrm_api3_digital_currency_Import_spec(&$spec) {
-  //$spec['magicword']['api.required'] = 1;
+  $spec['provider']['api.required'] = 1;
+  $spec['provider']['options'] = CRM_DigitalCurrency_BAO_ProcessorCommon::getProviders();
+
+  $spec['method']['api.default'] = 'Contrib';
+  $spec['method']['options'] = ['Contrib', 'File'];
+
+  $spec['limit']['description'] = 'Optionally indicate how many records should be retrieved and processed. The API will default to 50.';
 }
 
 /**

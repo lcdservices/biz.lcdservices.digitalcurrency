@@ -1,6 +1,7 @@
 <?php
 
-class CRM_DigitalCurrency_BAO_Processor_Bitcoin {
+class CRM_DigitalCurrency_BAO_Processor_Bitcoin
+  extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://blockchain.info/rawaddr/';
   public $_urlExchange = 'https://blockchain.info/ticker';

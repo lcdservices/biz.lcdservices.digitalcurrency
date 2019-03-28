@@ -1,6 +1,7 @@
 <?php
 
-class CRM_DigitalCurrency_BAO_Processor_BitcoinCash {
+class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
+  extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://bitcoincash.blockexplorer.com/api/addrs/';
   public $_urlExchange = 'https://bitpay.com/api/rates/BCH/USD';

@@ -1,7 +1,7 @@
 <?php
 
 class CRM_DigitalCurrency_BAO_Processor_Zcash
-  extends CRM_DigitalCurrency_BAO_Processor_ProviderCommon {
+  extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://api.zcha.in/v2/mainnet/accounts/';
   public $_currencySymbol = 'ZEC';
