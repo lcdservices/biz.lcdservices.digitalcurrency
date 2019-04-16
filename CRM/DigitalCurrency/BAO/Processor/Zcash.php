@@ -46,16 +46,13 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
         'value_input_exch' => $trxn->vin[0]->retrievedVout->value * $exchange,
         'value_output' => $trxn->vout[0]->valueZat,
         'value_output_exch' => $trxn->vout[0]->value * $exchange,
-        'timestamp' => $trxn->timeStamp,
+        'amount' => $trxn->value,
+        'amount_exch' => $trxn->value * $exchange,
+        'fee' => number_format($trxn->fee, 8),
+        'fee_exch' => number_format($trxn->fee * $exchange, 8),
+        'timestamp' => $trxn->timestamp,
       );
-
-      $totalOut = $totalOutCvt = 0;
-      foreach ($trxn->vout as $out) {
-        $totalOut += $out->valueZat;
-        $totalOutCvt += $out->value;
-      }
-      $values['value_output'] = $totalOut;
-      $values['value_output_exch'] = $totalOutCvt * $exchange;
+      //Civi::log()->debug('getTransactions', array('$values' => $values));
 
       $trxns[] = $values;
     }

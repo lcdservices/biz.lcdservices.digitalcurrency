@@ -50,6 +50,10 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
         'value_input_exch' => $trxn->valueIn * $exchange,
         'value_output' => $trxn->valueOut * 100000000,
         'value_output_exch' => $trxn->valueOut * $exchange,
+        'amount' => $trxn->valueOut,
+        'amount_exch' => $trxn->valueOut * $exchange,
+        'fee' => number_format($trxn->fees, 8),
+        'fee_exch' => number_format($trxn->fees * $exchange, 8),
         'timestamp' => $trxn->time,
       );
 
@@ -68,7 +72,7 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
    * TODO: we don't do any checking to determine if the country exists
    * TODO: to support multiple currencies, remove USD from api URL
    */
-  function getExchangeRate($country = 'USD') {
+  function getExchangeRate($country = 'USD', $provider = NULL) {
     $content = json_decode(file_get_contents($this->_urlExchange));
     //Civi::log()->debug('getExchangeRate', array('content' => $content));
 

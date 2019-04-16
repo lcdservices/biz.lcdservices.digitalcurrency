@@ -6,6 +6,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
   public $_url = 'https://blockchain.info/rawaddr/';
   public $_urlExchange = 'https://blockchain.info/ticker';
   public $_currencySymbol = 'BTC';
+  public $_conversionUnit = 0.00000001;
 
   /**
    * CRM_DigitalCurrency_BAO_Processor_Bitcoin constructor.
@@ -39,7 +40,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
         'addr_source' => $trxn->inputs[0]->prev_out->addr,
         'trxn_hash' => $trxn->hash,
         'value_input' => $trxn->inputs[0]->prev_out->value,
-        'value_input_exch' => $trxn->inputs[0]->prev_out->value * .00000001 * $exchange,
+        'value_input_exch' => $trxn->inputs[0]->prev_out->value * $this->_conversionUnit * $exchange,
         'timestamp' => $trxn->time,
       );
 
@@ -47,14 +48,18 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
       foreach ($trxn->out as $out) {
         $totalOut += $out->value;
 
-        if ($out->addr_tag == 'Internet Archive') {
-          $values['amount'] = $out->value;
-          $values['amount_exch'] = $out->value * .00000001 * $exchange;
+        if (!empty($out->addr_tag) && $out->addr_tag == 'Internet Archive') {
+          $values['amount'] = $out->value * $this->_conversionUnit;
+          $values['amount_exch'] = $out->value * $this->_conversionUnit * $exchange;
         }
       }
       $values['value_output'] = $totalOut;
-      $values['value_output_exch'] = $totalOut * .00000001 * $exchange;
+      $values['value_output_exch'] = $totalOut * $this->_conversionUnit * $exchange;
 
+      $values['fee'] = number_format(($trxn->inputs[0]->prev_out->value - $totalOut) * $this->_conversionUnit, 8);
+      $values['fee_exch'] = $values['fee'] * $exchange;
+
+      //Civi::log()->debug('getTransactions', array('$values' => $values));
       $trxns[] = $values;
     }
 
@@ -69,7 +74,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
    * TODO: this supports passing multiple countries but we don't handle that upstream currently
    * TODO: we don't do any checking to determine if the country exists
    */
-  function getExchangeRate($country = 'USD') {
+  function getExchangeRate($country = 'USD', $provider = NULL) {
     $content = json_decode(file_get_contents($this->_urlExchange));
     //Civi::log()->debug('getExchangeRate', array('content' => $content));
 

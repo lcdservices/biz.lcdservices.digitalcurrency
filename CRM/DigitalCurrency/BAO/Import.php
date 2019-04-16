@@ -117,23 +117,24 @@ class CRM_DigitalCurrency_BAO_Import {
   }
 
   static function processContrib($trxns, $provider) {
-    //Civi::log()->debug('processContrib', array('trxns' => $trxns));
+    Civi::log()->debug('processContrib', array('$trxns' => $trxns, '$provider' => $provider));
 
     $dcId = self::getProviderContact($provider);
 
     $i = 0;
     foreach ($trxns as $trxn) {
       //check log to ensure it hasn't been imported already
-      if (self::isProcessed($trxn)) {
+      if (self::isProcessed($provider, $trxn)) {
         continue;
       }
 
       //setup custom fields
       $custom = array(
         'source_address' => CRM_Core_BAO_CustomField::getCustomFieldID('source_address', 'digital_currency_details'),
+        'raw_amount' => CRM_Core_BAO_CustomField::getCustomFieldID('raw_amount', 'digital_currency_details'),
+        'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
         'value_in' => CRM_Core_BAO_CustomField::getCustomFieldID('value_in', 'digital_currency_details'),
         'value_out' => CRM_Core_BAO_CustomField::getCustomFieldID('value_out', 'digital_currency_details'),
-        'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
       );
 
       $feeExch = (!empty($trxn['fee_exch'])) ? $trxn['fee_exch'] :
@@ -155,11 +156,12 @@ class CRM_DigitalCurrency_BAO_Import {
         'trxn_id' => $provider.'-'.$trxn['trxn_hash'],
         'payment_instrument_id' => 'digital_currency_'.self::mapCurrency($provider),
         "custom_{$custom['source_address']}" => $trxn['addr_source'],
-        "custom_{$custom['value_in']}" => number_format($trxn['value_input'], 0, '.', ''),
-        "custom_{$custom['value_out']}" => number_format($trxn['value_output'], 0, '.', ''),
+        "custom_{$custom['raw_amount']}" => CRM_Utils_Array::value('amount', $trxn),
         "custom_{$custom['fee']}" => $fee,
+        "custom_{$custom['value_in']}" => number_format(CRM_Utils_Array::value('value_input', $trxn), 0, '.', ''),
+        "custom_{$custom['value_out']}" => number_format(CRM_Utils_Array::value('value_output', $trxn), 0, '.', ''),
       );
-      //Civi::log()->debug('processContrib', array('$params' => $params));
+      Civi::log()->debug('processContrib', array('$params' => $params));
 
       try {
         civicrm_api3('Contribution', 'create', $params);
@@ -186,7 +188,7 @@ class CRM_DigitalCurrency_BAO_Import {
     $map = array(
       'Bitcoin' => 'BTC',
       'BitcoinCash' => 'BCH',
-      'Etherium' => 'ETH',
+      'Ethereum' => 'ETH',
       'Zcash' => 'ZEC',
       'Ripple' => 'XRP'
     );
@@ -241,14 +243,14 @@ class CRM_DigitalCurrency_BAO_Import {
     return TRUE;
   }
 
-  static function isProcessed($trxn) {
+  static function isProcessed($provider, $trxn) {
     $processed = CRM_Core_DAO::singleValueQuery("
       SELECT id
       FROM civicrm_digitalcurrency_log
       WHERE trxn_hash = %1
         AND is_processed = 1
     ", array(
-      1 => array($trxn['trxn_hash'], 'String'),
+      1 => [$provider.'-'.$trxn['trxn_hash'], 'String'],
     ));
 
     return $processed;

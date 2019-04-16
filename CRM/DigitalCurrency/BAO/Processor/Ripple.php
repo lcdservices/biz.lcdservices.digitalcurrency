@@ -41,9 +41,11 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
         'value_input_exch' => $trxn->amount * $exchange,
         'value_output' => $trxn->delivered_amount,
         'value_output_exch' => $trxn->delivered_amount * $exchange,
+        'amount' => $trxn->delivered_amount,
+        'amount_exch' => $trxn->delivered_amount * $exchange,
+        'fee' => number_format($trxn->transaction_cost, 10),
+        'fee_exch' => number_format($trxn->transaction_cost * $exchange, 10),
         'timestamp' => strtotime($trxn->executed_time),
-        'fee' => $trxn->transaction_cost,
-        'fee_exch' => $trxn->transaction_cost * $exchange,
       ];
 
       $trxns[] = $values;
