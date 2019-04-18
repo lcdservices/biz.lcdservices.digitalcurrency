@@ -39,8 +39,11 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
 
     $trxns = array();
     foreach ($content as $trxn) {
+      $source = (!empty($trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0])) ?
+        $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0] : '';
+
       $values = array(
-        'addr_source' => $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0],
+        'addr_source' => $source,
         'trxn_hash' => $trxn->hash,
         'value_input' => $trxn->vin[0]->retrievedVout->valueZat,
         'value_input_exch' => $trxn->vin[0]->retrievedVout->value * $exchange,
