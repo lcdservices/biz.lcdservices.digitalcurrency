@@ -117,7 +117,7 @@ class CRM_DigitalCurrency_BAO_Import {
   }
 
   static function processContrib($trxns, $provider) {
-    Civi::log()->debug('processContrib', array('$trxns' => $trxns, '$provider' => $provider));
+    //Civi::log()->debug('processContrib', array('$trxns' => $trxns, '$provider' => $provider));
 
     $dcId = self::getProviderContact($provider);
 
@@ -161,7 +161,7 @@ class CRM_DigitalCurrency_BAO_Import {
         "custom_{$custom['value_in']}" => number_format(CRM_Utils_Array::value('value_input', $trxn), 0, '.', ''),
         "custom_{$custom['value_out']}" => number_format(CRM_Utils_Array::value('value_output', $trxn), 0, '.', ''),
       );
-      Civi::log()->debug('processContrib', array('$params' => $params));
+      //Civi::log()->debug('processContrib', array('$params' => $params));
 
       try {
         civicrm_api3('Contribution', 'create', $params);

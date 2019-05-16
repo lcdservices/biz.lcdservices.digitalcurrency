@@ -23,7 +23,7 @@ class CRM_DigitalCurrency_BAO_ProcessorCommon {
     $content = json_decode(file_get_contents($this->_urlExchange.'?'.$urlParams));
     //Civi::log()->debug('getExchangeRate', ['$urlParams' => $urlParams, 'content' => $content]);
 
-    return $content->$currency;
+    return $content->$provider->$currency;
   }
 
   static function getProviders() {
