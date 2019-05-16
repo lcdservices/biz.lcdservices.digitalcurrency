@@ -27,37 +27,50 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
 
     //setup required params
     $params['offset'] = 0;
+    $limit = CRM_Utils_Array::value('limit', $params);
+    $cycles = 1;
+    $trxns = [];
 
-    $urlParams = http_build_query($params);
-    $urlDC = $this->_url.$address.'/recv?'.$urlParams;
+    //API only allows a max limit of 20, so we need to paginate
+    if ($limit && $limit > 20) {
+      $cycles = ceil($limit/20);
+      $params['limit'] = 20;
+    }
 
-    $content = json_decode(file_get_contents($urlDC));
-    //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
+    for ($x = 1; $x <= $cycles; $x++) {
+      $urlParams = http_build_query($params);
+      $urlDC = $this->_url . $address . '/recv?' . $urlParams;
 
-    //get exchange rates
-    $exchange = $this->getExchangeRate();
+      $content = json_decode(file_get_contents($urlDC));
+      //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-    $trxns = array();
-    foreach ($content as $trxn) {
-      $source = (!empty($trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0])) ?
-        $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0] : '';
+      //get exchange rates
+      $exchange = $this->getExchangeRate();
 
-      $values = array(
-        'addr_source' => $source,
-        'trxn_hash' => $trxn->hash,
-        'value_input' => $trxn->vin[0]->retrievedVout->valueZat,
-        'value_input_exch' => $trxn->vin[0]->retrievedVout->value * $exchange,
-        'value_output' => $trxn->vout[0]->valueZat,
-        'value_output_exch' => $trxn->vout[0]->value * $exchange,
-        'amount' => $trxn->value,
-        'amount_exch' => $trxn->value * $exchange,
-        'fee' => number_format($trxn->fee, 8),
-        'fee_exch' => number_format($trxn->fee * $exchange, 8),
-        'timestamp' => $trxn->timestamp,
-      );
-      //Civi::log()->debug('getTransactions', array('$values' => $values));
+      foreach ($content as $trxn) {
+        $source = (!empty($trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0])) ?
+          $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0] : '';
 
-      $trxns[] = $values;
+        $values = [
+          'addr_source' => $source,
+          'trxn_hash' => $trxn->hash,
+          'value_input' => $trxn->vin[0]->retrievedVout->valueZat,
+          'value_input_exch' => $trxn->vin[0]->retrievedVout->value * $exchange,
+          'value_output' => $trxn->vout[0]->valueZat,
+          'value_output_exch' => $trxn->vout[0]->value * $exchange,
+          'amount' => $trxn->value,
+          'amount_exch' => $trxn->value * $exchange,
+          'fee' => number_format($trxn->fee, 8),
+          'fee_exch' => number_format($trxn->fee * $exchange, 8),
+          'timestamp' => $trxn->timestamp,
+        ];
+        //Civi::log()->debug('getTransactions', array('$values' => $values));
+
+        $trxns[] = $values;
+      }
+
+      //increment the offset
+      $params['offset'] = $x * 20;
     }
 
     return $trxns;
