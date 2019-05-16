@@ -44,10 +44,10 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
       $content = json_decode(file_get_contents($urlDC));
       //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-      //get exchange rates
-      $exchange = $this->getExchangeRate();
-
       foreach ($content as $trxn) {
+        //get exchange rates based on timestamp
+        $exchange = $this->getExchangeRate('USD', 'ZEC', $trxn->timestamp);
+
         $source = (!empty($trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0])) ?
           $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0] : '';
 

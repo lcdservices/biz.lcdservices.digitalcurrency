@@ -1,7 +1,7 @@
 <?php
 
 class CRM_DigitalCurrency_BAO_ProcessorCommon {
-  public $_urlExchange = 'https://min-api.cryptocompare.com/data/price';
+  public $_urlExchange = 'https://min-api.cryptocompare.com/data/pricehistorical';
 
   /**
    * @return null
@@ -15,9 +15,10 @@ class CRM_DigitalCurrency_BAO_ProcessorCommon {
    *
    * TODO: move all provider-specific methods to use this common method
    */
-  function getExchangeRate($currency = 'USD', $provider = NULL) {
+  function getExchangeRate($currency = 'USD', $provider = NULL, $timestamp = NULL) {
     $provider = (!empty($provider)) ? $provider : $this->_currencySymbol;
-    $urlParams = http_build_query(array('fsym' => $provider, 'tsyms' => $currency));
+    $timestamp = (!empty($timestamp)) ? $timestamp : time();
+    $urlParams = http_build_query(['fsym' => $provider, 'tsyms' => $currency, 'ts' => $timestamp]);
 
     $content = json_decode(file_get_contents($this->_urlExchange.'?'.$urlParams));
     //Civi::log()->debug('getExchangeRate', ['$urlParams' => $urlParams, 'content' => $content]);
