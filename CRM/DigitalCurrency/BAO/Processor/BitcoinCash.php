@@ -4,7 +4,6 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
   extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://bitcoincash.blockexplorer.com/api/addrs/';
-  public $_urlExchange = 'https://bitpay.com/api/rates/BCH/USD';
   public $_currencySymbol = 'BCH';
 
   /**
@@ -47,10 +46,10 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
       $content = json_decode(file_get_contents($urlDC));
       //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-      //get exchange rates
-      $exchange = $this->getExchangeRate();
-
       foreach ($content->items as $trxn) {
+        //get exchange rates
+        $exchange = $this->getExchangeRate('USD', 'BCH', $trxn->time);
+
         $values = [
           'addr_source' => str_replace('bitcoincash:', '', $trxn->vin[0]->addr),
           'trxn_hash' => $trxn->txid,
@@ -73,21 +72,5 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
     }
 
     return $trxns;
-  }
-
-  /**
-   * @return null
-   *
-   * get last exchange rate
-   *
-   * TODO: this COULD support passing multiple countries but we don't handle that upstream currently
-   * TODO: we don't do any checking to determine if the country exists
-   * TODO: to support multiple currencies, remove USD from api URL
-   */
-  function getExchangeRate($country = 'USD', $provider = NULL) {
-    $content = json_decode(file_get_contents($this->_urlExchange));
-    //Civi::log()->debug('getExchangeRate', array('content' => $content));
-
-    return $content->rate;
   }
 }
