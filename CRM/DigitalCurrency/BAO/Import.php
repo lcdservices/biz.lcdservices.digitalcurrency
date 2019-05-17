@@ -16,9 +16,10 @@ class CRM_DigitalCurrency_BAO_Import {
     $result = FALSE;
 
     //setup available params
-    $providerParams = array(
+    $providerParams = [
       'limit' => CRM_Utils_Array::value('limit', $params, 50),
-    );
+      'offset' => CRM_Utils_Array::value('offset', $params, 0),
+    ];
 
     //if a single provider is explicitly requested
     if ($provider) {

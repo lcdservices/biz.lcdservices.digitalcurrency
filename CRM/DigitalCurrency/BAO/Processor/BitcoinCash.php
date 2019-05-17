@@ -26,9 +26,10 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
     $address = 'qrzeh0y2uv2rdmjmkfqcmd39h9yqjrqwmqzaztef9w';
 
     //convert limit params
-    $params['from'] = CRM_Utils_Array::value('from', $params, 0);
+    $params['from'] = CRM_Utils_Array::value('offset', $params, 0);
     $params['to'] = $limit = CRM_Utils_Array::value('limit', $params, NULL);
     unset($params['limit']);
+    unset($params['offset']);
 
     $cycles = 1;
     $trxns = [];
