@@ -232,7 +232,7 @@ class CRM_DigitalCurrency_BAO_Import {
     }
     else {
       $providerSql = '';
-      $provider = 'null';//to avoide error in query params
+      $provider = 'null';//to avoid error in query params
     }
 
     CRM_Core_DAO::executeQuery("

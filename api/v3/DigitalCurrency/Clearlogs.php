@@ -11,6 +11,7 @@ use CRM_DigitalCurrency_ExtensionUtil as E;
  */
 function _civicrm_api3_digital_currency_Clearlogs_spec(&$spec) {
   $spec['confirm']['api.required'] = 1;
+  $spec['provider']['description'] = 'Optionally select which provider to clear logs for.';
 }
 
 /**
