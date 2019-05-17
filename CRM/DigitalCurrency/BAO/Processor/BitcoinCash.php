@@ -26,38 +26,49 @@ class CRM_DigitalCurrency_BAO_Processor_BitcoinCash
     $address = 'qrzeh0y2uv2rdmjmkfqcmd39h9yqjrqwmqzaztef9w';
 
     //convert limit params
-    $params['from'] = 0;
-    if (!empty($params['limit'])) {
-      $params['to'] = $params['limit'];
-      unset($params['limit']);
+    $params['from'] = CRM_Utils_Array::value('from', $params, 0);
+    $params['to'] = $limit = CRM_Utils_Array::value('limit', $params, NULL);
+    unset($params['limit']);
+
+    $cycles = 1;
+    $trxns = [];
+
+    //API only allows a max limit of 20, so we need to paginate
+    if ($limit && $limit > 50) {
+      $cycles = ceil($limit/50);
+      $params['to'] = 50;
     }
 
-    $urlParams = http_build_query($params);
-    $urlDC = $this->_url.$address.'/txs?'.$urlParams;
+    for ($x = 1; $x <= $cycles; $x++) {
+      $urlParams = http_build_query($params);
+      $urlDC = $this->_url . $address . '/txs?' . $urlParams;
 
-    $content = json_decode(file_get_contents($urlDC));
-    //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
+      $content = json_decode(file_get_contents($urlDC));
+      //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-    //get exchange rates
-    $exchange = $this->getExchangeRate();
+      //get exchange rates
+      $exchange = $this->getExchangeRate();
 
-    $trxns = array();
-    foreach ($content->items as $trxn) {
-      $values = array(
-        'addr_source' => str_replace('bitcoincash:', '', $trxn->vin[0]->addr),
-        'trxn_hash' => $trxn->txid,
-        'value_input' => $trxn->valueIn * 100000000,
-        'value_input_exch' => $trxn->valueIn * $exchange,
-        'value_output' => $trxn->valueOut * 100000000,
-        'value_output_exch' => $trxn->valueOut * $exchange,
-        'amount' => $trxn->valueOut,
-        'amount_exch' => $trxn->valueOut * $exchange,
-        'fee' => number_format($trxn->fees, 8),
-        'fee_exch' => number_format($trxn->fees * $exchange, 8),
-        'timestamp' => $trxn->time,
-      );
+      foreach ($content->items as $trxn) {
+        $values = [
+          'addr_source' => str_replace('bitcoincash:', '', $trxn->vin[0]->addr),
+          'trxn_hash' => $trxn->txid,
+          'value_input' => $trxn->valueIn * 100000000,
+          'value_input_exch' => $trxn->valueIn * $exchange,
+          'value_output' => $trxn->valueOut * 100000000,
+          'value_output_exch' => $trxn->valueOut * $exchange,
+          'amount' => $trxn->valueOut,
+          'amount_exch' => $trxn->valueOut * $exchange,
+          'fee' => number_format($trxn->fees, 8),
+          'fee_exch' => number_format($trxn->fees * $exchange, 8),
+          'timestamp' => $trxn->time,
+        ];
 
-      $trxns[] = $values;
+        $trxns[] = $values;
+      }
+
+      //increment the offset
+      $params['from'] = $x * 50;
     }
 
     return $trxns;
