@@ -45,11 +45,11 @@ class CRM_DigitalCurrency_BAO_Processor_Ethereum
     $content = json_decode(file_get_contents($urlDC));
     //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-    //get exchange rates
-    $exchange = $this->getExchangeRate();
-
     $trxns = array();
     foreach ($content->result as $trxn) {
+      //get exchange rates
+      $exchange = $this->getExchangeRate('USD', 'ETH', $trxn->timeStamp);
+
       //anything other than 'Ox' is an altcoin... I think...
       if ($trxn->input == '0x') {
         $values = [
