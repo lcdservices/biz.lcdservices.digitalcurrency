@@ -21,6 +21,10 @@ class CRM_DigitalCurrency_BAO_Import {
       'offset' => CRM_Utils_Array::value('offset', $params, 0),
     ];
 
+    if ($start = CRM_Utils_Array::value('start', $params)) {
+      $providerParams['start'] = $start;
+    }
+
     //if a single provider is explicitly requested
     if ($provider) {
       $providerClass = 'CRM_DigitalCurrency_BAO_Processor_' . $provider;

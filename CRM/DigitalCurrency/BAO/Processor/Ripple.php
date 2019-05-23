@@ -31,6 +31,11 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
 
     $trxns = [];
     foreach ($content->payments as $trxn) {
+      //skip if the destination is other than our address as it indicates outgoing funds
+      if ($trxn->destination != $address) {
+        continue;
+      }
+
       //get exchange rates
       $exchange = $this->getExchangeRate('USD', $this->_currencySymbol, strtotime($trxn->executed_time));
 
