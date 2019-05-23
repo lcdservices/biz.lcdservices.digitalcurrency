@@ -29,11 +29,11 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
     $content = json_decode(file_get_contents($url));
     //Civi::log()->debug('getTransactions', array('$url' => $url, 'content' => $content));
 
-    //get exchange rates
-    $exchange = $this->getExchangeRate('USD', $this->_currencySymbol);
-
     $trxns = [];
     foreach ($content->payments as $trxn) {
+      //get exchange rates
+      $exchange = $this->getExchangeRate('USD', $this->_currencySymbol, strtotime($trxn->executed_time));
+
       $values = [
         'addr_source' => $trxn->source,
         'trxn_hash' => $trxn->tx_hash,
