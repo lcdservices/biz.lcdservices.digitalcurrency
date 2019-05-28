@@ -4,7 +4,6 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
   extends CRM_DigitalCurrency_BAO_ProcessorCommon {
 
   public $_url = 'https://blockchain.info/rawaddr/';
-  public $_urlExchange = 'https://blockchain.info/ticker';
   public $_currencySymbol = 'BTC';
   public $_conversionUnit = 0.00000001;
 
@@ -48,6 +47,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
       foreach ($content->txs as $trxn) {
         //get exchange rates
         $exchange = $this->getExchangeRate('USD', 'BTC', $trxn->time);
+        //Civi::log()->debug('getTransactions', array('$exchange' => $exchange));
 
         $values = [
           'addr_source' => $trxn->inputs[0]->prev_out->addr,
@@ -58,14 +58,22 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
         ];
 
         $totalOut = 0;
+        $trxnOutFound = FALSE;
         foreach ($trxn->out as $out) {
           $totalOut += $out->value;
 
           if (!empty($out->addr_tag) && $out->addr_tag == 'Internet Archive') {
             $values['amount'] = $out->value * $this->_conversionUnit;
             $values['amount_exch'] = $out->value * $this->_conversionUnit * $exchange;
+            $trxnOutFound = TRUE;
           }
         }
+
+        //if no out trxn matching IA was found, this is not a "deposit" and should be skipped
+        if (!$trxnOutFound) {
+          continue;
+        }
+
         $values['value_output'] = $totalOut;
         $values['value_output_exch'] = $totalOut * $this->_conversionUnit * $exchange;
 
