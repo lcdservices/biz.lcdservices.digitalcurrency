@@ -25,59 +25,61 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
   function getTransactions($params) {
     //TODO get address from params
     $address = '1Archive1n2C579dMsAu3iC6tWzuQJz8dN';
-    $urlParams = http_build_query($params);
-    $urlDC = $this->_url.$address.'?'.$urlParams;
 
-    $content = json_decode(file_get_contents($urlDC));
-    //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
+    //setup required params
+    $params['offset'] = 0;
+    $limit = CRM_Utils_Array::value('limit', $params);
+    $cycles = 1;
+    $trxns = [];
 
-    //get exchange rates
-    $exchange = $this->getExchangeRate();
+    //API only allows a max limit of 50, so we need to paginate
+    if ($limit && $limit > 50) {
+      $cycles = ceil($limit / 50);
+      $params['limit'] = 50;
+    }
 
-    $trxns = array();
-    foreach ($content->txs as $trxn) {
-      $values = array(
-        'addr_source' => $trxn->inputs[0]->prev_out->addr,
-        'trxn_hash' => $trxn->hash,
-        'value_input' => $trxn->inputs[0]->prev_out->value,
-        'value_input_exch' => $trxn->inputs[0]->prev_out->value * $this->_conversionUnit * $exchange,
-        'timestamp' => $trxn->time,
-      );
+    for ($x = 1; $x <= $cycles; $x++) {
+      $urlParams = http_build_query($params);
+      $urlDC = $this->_url . $address . '?' . $urlParams;
 
-      $totalOut = 0;
-      foreach ($trxn->out as $out) {
-        $totalOut += $out->value;
+      $content = json_decode(file_get_contents($urlDC));
+      //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-        if (!empty($out->addr_tag) && $out->addr_tag == 'Internet Archive') {
-          $values['amount'] = $out->value * $this->_conversionUnit;
-          $values['amount_exch'] = $out->value * $this->_conversionUnit * $exchange;
+      foreach ($content->txs as $trxn) {
+        //get exchange rates
+        $exchange = $this->getExchangeRate('USD', 'BTC', $trxn->time);
+
+        $values = [
+          'addr_source' => $trxn->inputs[0]->prev_out->addr,
+          'trxn_hash' => $trxn->hash,
+          'value_input' => $trxn->inputs[0]->prev_out->value,
+          'value_input_exch' => $trxn->inputs[0]->prev_out->value * $this->_conversionUnit * $exchange,
+          'timestamp' => $trxn->time,
+        ];
+
+        $totalOut = 0;
+        foreach ($trxn->out as $out) {
+          $totalOut += $out->value;
+
+          if (!empty($out->addr_tag) && $out->addr_tag == 'Internet Archive') {
+            $values['amount'] = $out->value * $this->_conversionUnit;
+            $values['amount_exch'] = $out->value * $this->_conversionUnit * $exchange;
+          }
         }
+        $values['value_output'] = $totalOut;
+        $values['value_output_exch'] = $totalOut * $this->_conversionUnit * $exchange;
+
+        $values['fee'] = number_format(($trxn->inputs[0]->prev_out->value - $totalOut) * $this->_conversionUnit, 8);
+        $values['fee_exch'] = $values['fee'] * $exchange;
+
+        //Civi::log()->debug('getTransactions', array('$values' => $values));
+        $trxns[] = $values;
       }
-      $values['value_output'] = $totalOut;
-      $values['value_output_exch'] = $totalOut * $this->_conversionUnit * $exchange;
 
-      $values['fee'] = number_format(($trxn->inputs[0]->prev_out->value - $totalOut) * $this->_conversionUnit, 8);
-      $values['fee_exch'] = $values['fee'] * $exchange;
-
-      //Civi::log()->debug('getTransactions', array('$values' => $values));
-      $trxns[] = $values;
+      //increment the offset
+      $params['offset'] = $x * 50;
     }
 
     return $trxns;
-  }
-
-  /**
-   * @return null
-   *
-   * get last exchange rate
-   *
-   * TODO: this supports passing multiple countries but we don't handle that upstream currently
-   * TODO: we don't do any checking to determine if the country exists
-   */
-  function getExchangeRate($country = 'USD', $provider = NULL) {
-    $content = json_decode(file_get_contents($this->_urlExchange));
-    //Civi::log()->debug('getExchangeRate', array('content' => $content));
-
-    return $content->$country->last;
   }
 }
