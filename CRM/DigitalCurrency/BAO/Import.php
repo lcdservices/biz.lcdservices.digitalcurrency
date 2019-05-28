@@ -53,7 +53,7 @@ class CRM_DigitalCurrency_BAO_Import {
     $content = array();
     foreach ($trxns as $trxn) {
       //check log to ensure it hasn't been imported already
-      if (self::isProcessed($trxn)) {
+      if (self::isProcessed($provider, $trxn)) {
         continue;
       }
 
@@ -126,10 +126,11 @@ class CRM_DigitalCurrency_BAO_Import {
 
     $dcId = self::getProviderContact($provider);
 
-    $i = 0;
+    $i = $s = 0;
     foreach ($trxns as $trxn) {
       //check log to ensure it hasn't been imported already
       if (self::isProcessed($provider, $trxn)) {
+        $s++;
         continue;
       }
 
@@ -179,7 +180,10 @@ class CRM_DigitalCurrency_BAO_Import {
       self::logTrxn($trxn, $provider);
     }
 
-    return $i;
+    return [
+      'processed' => $i,
+      'skipped' => $s,
+    ];
   }
 
   /**
@@ -253,10 +257,12 @@ class CRM_DigitalCurrency_BAO_Import {
       SELECT id
       FROM civicrm_digitalcurrency_log
       WHERE trxn_hash = %1
+        AND provider = %2
         AND is_processed = 1
-    ", array(
-      1 => [$provider.'-'.$trxn['trxn_hash'], 'String'],
-    ));
+    ", [
+      1 => [$trxn['trxn_hash'], 'String'],
+      2 => [$provider, 'String'],
+    ]);
 
     return $processed;
   }
