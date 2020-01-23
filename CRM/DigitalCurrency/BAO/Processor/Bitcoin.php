@@ -62,7 +62,7 @@ class CRM_DigitalCurrency_BAO_Processor_Bitcoin
         foreach ($trxn->out as $out) {
           $totalOut += $out->value;
 
-          if (!empty($out->addr_tag) && $out->addr_tag == 'Internet Archive') {
+          if (!empty($out->addr) && $out->addr == $address) {
             $values['amount'] = $out->value * $this->_conversionUnit;
             $values['amount_exch'] = $out->value * $this->_conversionUnit * $exchange;
             $trxnOutFound = TRUE;
