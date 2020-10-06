@@ -27,6 +27,8 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
 
     //setup required params
     $params['offset'] = 0;
+    $params['sort'] = 'timestamp';
+    $params['direction'] = 'descending';
     $limit = CRM_Utils_Array::value('limit', $params);
     $cycles = 1;
     $trxns = [];

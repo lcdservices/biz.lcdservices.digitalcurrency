@@ -17,6 +17,8 @@ function _civicrm_api3_digital_currency_Import_spec(&$spec) {
   $spec['method']['options'] = ['Contrib', 'File'];
 
   $spec['limit']['description'] = 'Optionally indicate how many records should be retrieved and processed. The API will default to 50.';
+
+  $spec['start']['description'] = 'Start date to pull data from. Not supported by all processors.';
 }
 
 /**

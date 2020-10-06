@@ -281,13 +281,13 @@ class CRM_DigitalCurrency_BAO_Import {
     }
   }
 
-  static function formatTimestamp($timestamp) {
+  static function formatTimestamp($timestamp, $format = 'Y-m-d H:i:s') {
     $mysqlDate = date('Y-m-d H:i:s', $timestamp);
     $dateTime = new DateTime ($mysqlDate);
     $dateTime->setTimezone(new DateTimeZone('America/Los_Angeles'));
 
     //Civi::log()->debug('', ['dateTime' => $dateTime]);
-    return $dateTime->format('Y-m-d H:i:s');
+    return $dateTime->format($format);
   }
 
   static function getProviderContact($provider) {
