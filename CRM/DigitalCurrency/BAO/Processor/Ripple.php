@@ -30,7 +30,7 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
     //TODO get address from params
     $address = 'rGeyCsqc6vKXuyTGF39WJxmTRemoV3c97h';
     $params['descending'] = TRUE;
-    $start = CRM_Utils_Array::value('start', $params, date('Y-m-d H:i:s', strtotime('-1 day')));
+    $start = CRM_Utils_Array::value('start', $params, date('Y-m-d H:i:s', strtotime('-3 day')));
     $params['start'] = CRM_DigitalCurrency_BAO_Import::formatTimestamp(strtotime($start), 'c');
     $urlParams = http_build_query($params);
     $url = $this->_url.$address.'/payments?'.$urlParams;
