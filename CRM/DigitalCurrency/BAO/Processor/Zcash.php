@@ -26,7 +26,7 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
     $address = 't1ZmpK4QFcvyQZ3ghTgSboBW8b4HgiZHQF9';
 
     //setup required params
-    $params['offset'] = 0;
+    $params['offset'] = $params['offset'] ?? 0;
     $params['sort'] = 'timestamp';
     $params['direction'] = 'descending';
     $limit = CRM_Utils_Array::value('limit', $params);
@@ -53,6 +53,14 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
         $source = (!empty($trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0])) ?
           $trxn->vin[0]->retrievedVout->scriptPubKey->addresses[0] : '';
 
+        //determine the transferred amount
+        $value = 0;
+        foreach ($trxn->vout as $vout) {
+          if ($vout->scriptPubKey->addresses[0] == $address) {
+            $value = $vout->value;
+          }
+        }
+
         $values = [
           'addr_source' => $source,
           'trxn_hash' => $trxn->hash,
@@ -60,8 +68,8 @@ class CRM_DigitalCurrency_BAO_Processor_Zcash
           'value_input_exch' => $trxn->vin[0]->retrievedVout->value * $exchange,
           'value_output' => $trxn->vout[0]->valueZat,
           'value_output_exch' => $trxn->vout[0]->value * $exchange,
-          'amount' => $trxn->value,
-          'amount_exch' => $trxn->value * $exchange,
+          'amount' => $value,
+          'amount_exch' => $value * $exchange,
           'fee' => number_format($trxn->fee, 8),
           'fee_exch' => number_format($trxn->fee * $exchange, 8),
           'timestamp' => $trxn->timestamp,
