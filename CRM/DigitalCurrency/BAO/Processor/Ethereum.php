@@ -45,8 +45,13 @@ class CRM_DigitalCurrency_BAO_Processor_Ethereum
     $content = json_decode(file_get_contents($urlDC));
     //Civi::log()->debug('getTransactions', array('urlDC' => $urlDC, 'content' => $content));
 
-    $trxns = array();
+    $trxns = [];
     foreach ($content->result as $trxn) {
+      //DEBUGGING
+      /*if (strpos($trxn->hash, '0x889a28') !== FALSE) {
+        Civi::log()->debug(__METHOD__, ['trxn' => $trxn]);
+      }*/
+
       //get exchange rates
       $exchange = $this->getExchangeRate('USD', 'ETH', $trxn->timeStamp);
 

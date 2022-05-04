@@ -134,14 +134,19 @@ class CRM_DigitalCurrency_BAO_Import {
         continue;
       }
 
+      if (self::trxnExists($provider, $trxn)) {
+        $s++;
+        continue;
+      }
+
       //setup custom fields
-      $custom = array(
+      $custom = [
         'source_address' => CRM_Core_BAO_CustomField::getCustomFieldID('source_address', 'digital_currency_details'),
         'raw_amount' => CRM_Core_BAO_CustomField::getCustomFieldID('raw_amount', 'digital_currency_details'),
         'fee' => CRM_Core_BAO_CustomField::getCustomFieldID('fee', 'digital_currency_details'),
         'value_in' => CRM_Core_BAO_CustomField::getCustomFieldID('value_in', 'digital_currency_details'),
         'value_out' => CRM_Core_BAO_CustomField::getCustomFieldID('value_out', 'digital_currency_details'),
-      );
+      ];
 
       $feeExch = (!empty($trxn['fee_exch'])) ? $trxn['fee_exch'] :
         number_format($trxn['value_input_exch'] - $trxn['value_output_exch'], 2);
@@ -149,7 +154,7 @@ class CRM_DigitalCurrency_BAO_Import {
         $trxn['value_input'] - $trxn['value_output'];
       $amount = (!empty($trxn['amount_exch'])) ? $trxn['amount_exch'] : $trxn['value_output_exch'];
 
-      $params = array(
+      $params = [
         'contact_id' => $dcId,
         'financial_type_id' => 'Donation',
         'source' => 'Digital Currency Import',
@@ -166,15 +171,20 @@ class CRM_DigitalCurrency_BAO_Import {
         "custom_{$custom['fee']}" => $fee,
         "custom_{$custom['value_in']}" => number_format(CRM_Utils_Array::value('value_input', $trxn), 0, '.', ''),
         "custom_{$custom['value_out']}" => number_format(CRM_Utils_Array::value('value_output', $trxn), 0, '.', ''),
-      );
-      //Civi::log()->debug('processContrib', array('$params' => $params));
+      ];
+
+      //DEBUGGING specific trxn
+      /*if (strpos($params['trxn_id'], '0FEAF30FC2620386DC16ABD0E31202179998B6BF30AB6C64F14A11C8C085F670') !== FALSE) {
+        Civi::log()->debug(__METHOD__, ['trxn' => $trxn, '$params' => $params]);
+      }*/
+      //Civi::log()->debug('processContrib', ['$params' => $params]);
 
       try {
         civicrm_api3('Contribution', 'create', $params);
         $i ++;
       }
       catch (CRM_API3_Exception $e) {
-        Civi::log()->debug('processContrib', array('$e' => $e));
+        Civi::log()->debug('processContrib', ['$e' => $e]);
       }
 
       self::logTrxn($trxn, $provider);
@@ -265,6 +275,18 @@ class CRM_DigitalCurrency_BAO_Import {
     ]);
 
     return $processed;
+  }
+
+  static function trxnExists($provider, $trxn) {
+    $exists = CRM_Core_DAO::singleValueQuery("
+      SELECT id
+      FROM civicrm_contribution
+      WHERE trxn_id = %1
+    ", [
+      1 => [$provider.'-'.$trxn['trxn_hash'], 'String'],
+    ]);
+
+    return $exists;
   }
 
   static function cleanTrxns(&$trxns) {

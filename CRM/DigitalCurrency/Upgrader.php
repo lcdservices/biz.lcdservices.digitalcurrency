@@ -18,13 +18,13 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
 
     //configure payment methods
     //TODO extract from provider classes
-    $pms = array(
+    $pms = [
       'BTC' => 'Digital Currency: Bitcoin',
       'BCH' => 'Digital Currency: Bitcoin Cash',
       'ETH' => 'Digital Currency: Ethereum',
       'ZEC' => 'Digital Currency: Zcash',
       'XRP' => 'Digital Currency: Ripple',
-    );
+    ];
 
     foreach ($pms as $dc => $label) {
       try {
@@ -47,29 +47,29 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
     //TODO we should ensure DC org contact records exist and create if they don't
 
     //convert currency fields to 8 digits
-    $currencyFields = array(
-      'civicrm_contribution' => array(
+    $currencyFields = [
+      'civicrm_contribution' => [
         'non_deductible_amount',
         'total_amount',
         'fee_amount',
         'net_amount',
         'tax_amount',
-      ),
-      'civicrm_line_item' => array(
+      ],
+      'civicrm_line_item' => [
         'unit_price',
         'line_total',
         'non_deductible_amount',
         'tax_amount',
-      ),
-      'civicrm_financial_item' => array(
+      ],
+      'civicrm_financial_item' => [
         'amount',
-      ),
-      'civicrm_financial_trxn' => array(
+      ],
+      'civicrm_financial_trxn' => [
         'total_amount',
         'fee_amount',
         'net_amount',
-      ),
-    );
+      ],
+    ];
 
     //we are storing as USD, so don't convert...
     /*foreach ($currencyFields as $table => $fields) {
@@ -125,13 +125,18 @@ class CRM_DigitalCurrency_Upgrader extends CRM_DigitalCurrency_Upgrader_Base {
    *
    * @return TRUE on success
    * @throws Exception
-   *
-  public function upgrade_4200() {
-    $this->ctx->log->info('Applying update 4200');
-    CRM_Core_DAO::executeQuery('UPDATE foo SET bar = "whiz"');
-    CRM_Core_DAO::executeQuery('DELETE FROM bang WHERE willy = wonka(2)');
+   */
+  public function upgrade_1100() {
+    $this->ctx->log->info('Applying update 1100');
+    CRM_Core_DAO::executeQuery("
+      ALTER TABLE civicrm_digitalcurrency_log CHANGE value_input value_input DECIMAL(65,8) NOT NULL;
+    ");
+    CRM_Core_DAO::executeQuery("
+      ALTER TABLE civicrm_digitalcurrency_log CHANGE value_output value_output DECIMAL(65,8) NOT NULL;
+    ");
+
     return TRUE;
-  } // */
+  }
 
 
   /**

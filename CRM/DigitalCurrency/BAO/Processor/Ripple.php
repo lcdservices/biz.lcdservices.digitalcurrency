@@ -62,6 +62,11 @@ class CRM_DigitalCurrency_BAO_Processor_Ripple
         'timestamp' => strtotime($trxn->executed_time),
       ];
 
+      //DEBUGGGING
+      /*if ($trxn->tx_hash == '0FEAF30FC2620386DC16ABD0E31202179998B6BF30AB6C64F14A11C8C085F670') {
+        Civi::log()->debug('getTransactions', array('$trxn' => $trxn, '$values' => $values));
+      }*/
+
       $trxns[] = $values;
     }
 
